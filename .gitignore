@@ -1,0 +1,11 @@
+# Icarus Verilog:
+*.vvp
+*.vcd
+# testing
+*.ivt.v
+IVtest/
+# MISC:
+*.pdf
+*.zip
+*.png
+*.PNG
