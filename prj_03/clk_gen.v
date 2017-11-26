@@ -29,4 +29,4 @@ always
 begin
 #`SYS_CLK_HALF_PERIOD CLK <= ~CLK;
 end
-endmodule;
+endmodule

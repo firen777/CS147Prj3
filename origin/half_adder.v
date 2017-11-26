@@ -24,4 +24,4 @@ input A,B;
 
 // TBD
 
-endmodule;
+endmodule

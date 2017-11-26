@@ -1,14 +1,13 @@
-// Name: full_adder.v
-// Module: FULL_ADDER
+// Name: half_adder.v
+// Module: HALF_ADDER
 //
-// Output: S : Sum
-//         CO : Carry Out
+// Output: Y : Sum
+//         C : Carry
 //
 // Input: A : Bit 1
 //        B : Bit 2
-//        CI : Carry In
 //
-// Notes: 1-bit full adder implementaiton.
+// Notes: 1-bit half adder implementaiton.
 // 
 //
 // Revision History:
@@ -19,10 +18,10 @@
 //------------------------------------------------------------------------------------------
 `include "prj_definition.v"
 
-module FULL_ADDER(S,CO,A,B, CI);
-output S,CO;
-input A,B, CI;
+module HALF_ADDER(Y,C,A,B);
+output Y,C;
+input A,B;
 
-//TBD
+// TBD
 
-endmodule;
+endmodule

@@ -41,4 +41,4 @@ defparam memory_inst.mem_init_file = mem_init_file;
 MEMORY_WRAPPER memory_inst(.DATA_OUT(MEM_DATA_OUT), .DATA_IN(MEM_DATA_IN), 
                            .READ(READ), .WRITE(WRITE), 
                            .ADDR(ADDR), .CLK(CLK),   .RST(RST));
-endmodule;
+endmodule

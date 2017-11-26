@@ -25,4 +25,4 @@ input A,B, CI;
 
 //TBD
 
-endmodule;
+endmodule

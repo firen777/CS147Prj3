@@ -55,5 +55,5 @@ RST=1'b1;
        $stop;
 
 end
-endmodule;
+endmodule
 

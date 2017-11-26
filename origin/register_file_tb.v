@@ -88,5 +88,5 @@ end
     $stop;
 
 end
-endmodule;
+endmodule
 
