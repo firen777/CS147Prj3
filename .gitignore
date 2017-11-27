@@ -12,5 +12,5 @@
 *.PNG
 
 #ModelSim Mess
-## work/
+work/
 *.v.bak
