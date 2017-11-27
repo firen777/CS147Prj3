@@ -1,3 +1,5 @@
+`include "half_adder.v"
+
 `include "prj_definition.v"
 module HALF_ADDER_TB;
 
