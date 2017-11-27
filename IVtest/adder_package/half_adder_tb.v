@@ -9,7 +9,7 @@ module HALF_ADDER_TB;
   HALF_ADDER HALF_ADDER_INST(Y,C,A,B);
 
   initial begin
-    $dumpfile("half_adder.vcd");
+    $dumpfile("tb.vcd");
     $dumpvars(0, HALF_ADDER_TB);
     A=0;B=0;
     #5 A=1; B=0;
