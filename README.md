@@ -3,7 +3,7 @@ CS147Prj3
 
 [Nov 21, 2017] Review the design for 'register_file' It has independent 'read' and 'write' signals. 'HiZ' is expected output from this module is 'read' is set to 0. To make this module work correctly with data path, keep 'read' mode on. i.e. even at write cycle control signal should be 'read=1, write=1' Otherwise you may get unexpected behavior from simulator at gate level simulation including slowness and aborting by hitting limit of eval cycle.
 
-The primary objective of this project to write a mixed model of a bare minimum computer system DaVinci v1.0m supporting instruction set CS147DV as described in class lecture. 
+The primary objective of this project to write a mixed model of a bare minimum computer system DaVinci v1.0m supporting instruction set CS147DV as described in class lecture.
 
 ### Objective:
 
@@ -32,8 +32,8 @@ The primary objective of this project to write a mixed model of a bare minimum c
 
 * Download HDL source code from prj_03.zipView in a new window
     * Contains schematic for the complete data path.
-    * Contains partial implementation of the processor. 
-    * Skeleton of all the modules to implemented is already defined. You need to fill them up. 
+    * Contains partial implementation of the processor.
+    * Skeleton of all the modules to implemented is already defined. You need to fill them up.
     * Do not change module name or move them around - otherwise grading automation will be affected.
     * It is recommended to create testbench for all lower level modules and test your implementation ground up. Otherwise, at higher level issues could very complex to debug.
 * Complete the source codes as required.
@@ -41,3 +41,7 @@ The primary objective of this project to write a mixed model of a bare minimum c
 * Create prj_03_report.pdf for report file.
 * Create ZIP archive prj_03_source.zip containing all the verilog and program data file needed.
 * Upload the both PDF and ZIP file [Two files to be uploaded]
+
+==========================================================================================
+# Icarus Verilog:
+Installation and brief tutorial: https://www.swarthmore.edu/NatSci/mzucker1/e15_f2014/iverilog.html
