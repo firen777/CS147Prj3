@@ -9,7 +9,7 @@
 //        CI : Carry In
 //
 // Notes: 1-bit full adder implementaiton.
-// 
+//
 //
 // Revision History:
 //
@@ -22,7 +22,10 @@
 module FULL_ADDER(S,CO,A,B, CI);
 output S,CO;
 input A,B, CI;
+wire Y1, C1, C2;
 
-//TBD
+HALF_ADDER H1(Y1,C1,A,B);
+HALF_ADDER H2(S,C2,Y1,CI);
+or(CO,C2,C1);
 
 endmodule
