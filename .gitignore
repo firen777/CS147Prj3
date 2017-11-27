@@ -3,9 +3,14 @@
 *.vcd
 # testing
 *.ivt.v
-IVtest/
+## IVtest/
+
 # MISC:
 *.pdf
 *.zip
 *.png
 *.PNG
+
+#ModelSim Mess
+## work/
+*.v.bak
