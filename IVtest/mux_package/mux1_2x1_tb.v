@@ -1,7 +1,7 @@
 `include "mux.v"
 
 `include "prj_definition.v"
-module MUX_TB;
+module MUX1_2x1_TB;
 
   reg I0,I1,S;
   wire Y;
@@ -9,7 +9,7 @@ module MUX_TB;
 
   initial begin
     $dumpfile("tb.vcd");
-    $dumpvars(0, MUX_TB);
+    $dumpvars(0, MUX1_2x1_TB);
     S=0;I0=0;I1=0;
     #5 S=0;I0=0;I1=1;
     #5 S=0;I0=1;I1=0;

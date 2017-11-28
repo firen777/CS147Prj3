@@ -101,8 +101,14 @@ output [31:0] Y;
 input [31:0] I0;
 input [31:0] I1;
 input S;
+genvar i;
+generate
+  for (i=0;i<32;i=i+1)
+  begin: mux32_2x1_gen
+    MUX1_2x1 MUX1_2x1_INST(Y[i],I0[i],I1[i],S);
+  end
+endgenerate
 
-// TBD
 
 endmodule
 
