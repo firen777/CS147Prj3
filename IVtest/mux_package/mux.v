@@ -34,96 +34,163 @@ endmodule
 // 32-bit 16x1 mux
 module MUX32_16x1(Y, I0, I1, I2, I3, I4, I5, I6, I7,
                      I8, I9, I10, I11, I12, I13, I14, I15, S);
-// output list
-output [31:0] Y;
-//input list
-input [31:0] I0;
-input [31:0] I1;
-input [31:0] I2;
-input [31:0] I3;
-input [31:0] I4;
-input [31:0] I5;
-input [31:0] I6;
-input [31:0] I7;
-input [31:0] I8;
-input [31:0] I9;
-input [31:0] I10;
-input [31:0] I11;
-input [31:0] I12;
-input [31:0] I13;
-input [31:0] I14;
-input [31:0] I15;
-input [3:0] S;
+  // output list
+  output [31:0] Y;
+  //input list
+  input [31:0] I0;
+  input [31:0] I1;
+  input [31:0] I2;
+  input [31:0] I3;
+  input [31:0] I4;
+  input [31:0] I5;
+  input [31:0] I6;
+  input [31:0] I7;
+  input [31:0] I8;
+  input [31:0] I9;
+  input [31:0] I10;
+  input [31:0] I11;
+  input [31:0] I12;
+  input [31:0] I13;
+  input [31:0] I14;
+  input [31:0] I15;
+  input [3:0] S;
 
-// TBD
+  genvar i;
+  generate
+    for (i=0;i<32;i=i+1)
+    begin: mux32_16x1_gen
+      MUX1_16x1 MUX1_16x1_INST(Y[i],I0[i],I1[i],I2[i],I3[i],I4[i],I5[i],I6[i],I7[i],
+                                    I8[i],I9[i],I10[i],I11[i],I12[i],I13[i],I14[i],I15[i],S);
+    end
+  endgenerate
+
+endmodule
+
+// 1-bit 16x1 mux
+module MUX1_16x1(Y, I0, I1, I2, I3, I4, I5, I6, I7,
+                    I8, I9, I10, I11, I12, I13, I14, I15, S);
+  // output list
+  output Y;
+  // input list
+  input I0, I1, I2, I3, I4, I5, I6, I7,
+        I8, I9, I10, I11, I12, I13, I14, I15;
+  input [3:0] S;
+  // wire list
+  wire a, b, c;
+
+  MUX1_8x1 M1a(a, I0, I1, I2, I3, I4, I5, I6, I7, S[2:0]);
+  MUX1_8x1 M1b(b, I8, I9, I10, I11, I12, I13, I14, I15, S[2:0]);
+  MUX1_2x1 M2(Y,a,b,S[3]);
 
 endmodule
 
 // 32-bit 8x1 mux
 module MUX32_8x1(Y, I0, I1, I2, I3, I4, I5, I6, I7, S);
-// output list
-output [31:0] Y;
-//input list
-input [31:0] I0;
-input [31:0] I1;
-input [31:0] I2;
-input [31:0] I3;
-input [31:0] I4;
-input [31:0] I5;
-input [31:0] I6;
-input [31:0] I7;
-input [2:0] S;
+  // output list
+  output [31:0] Y;
+  //input list
+  input [31:0] I0;
+  input [31:0] I1;
+  input [31:0] I2;
+  input [31:0] I3;
+  input [31:0] I4;
+  input [31:0] I5;
+  input [31:0] I6;
+  input [31:0] I7;
+  input [2:0] S;
 
-// TBD
+  genvar i;
+  generate
+    for (i=0;i<32;i=i+1)
+    begin: mux32_8x1_gen
+      MUX1_8x1 MUX1_8x1_INST(Y[i],I0[i],I1[i],I2[i],I3[i],I4[i],I5[i],I6[i],I7[i],S);
+    end
+  endgenerate
+
+endmodule
+
+// 1-bit 8x1 mux
+module MUX1_8x1(Y, I0, I1, I2, I3, I4, I5, I6, I7, S);
+  // output list
+  output Y;
+  // input list
+  input I0, I1, I2, I3, I4, I5, I6, I7;
+  input [2:0] S;
+  // wire list
+  wire a, b, c;
+
+  MUX1_4x1 M1a(a,I0, I1, I2, I3,S[1:0]);
+  MUX1_4x1 M1b(b,I4, I5, I6, I7,S[1:0]);
+  MUX1_2x1 M2(Y,a,b,S[2]);
 
 endmodule
 
 // 32-bit 4x1 mux
 module MUX32_4x1(Y, I0, I1, I2, I3, S);
-// output list
-output [31:0] Y;
-//input list
-input [31:0] I0;
-input [31:0] I1;
-input [31:0] I2;
-input [31:0] I3;
-input [1:0] S;
+  // output list
+  output [31:0] Y;
+  //input list
+  input [31:0] I0;
+  input [31:0] I1;
+  input [31:0] I2;
+  input [31:0] I3;
+  input [1:0] S;
 
-// TBD
+  genvar i;
+  generate
+    for (i=0;i<32;i=i+1)
+    begin: mux32_4x1_gen
+      MUX1_4x1 MUX1_4x1_INST(Y[i],I0[i],I1[i],I2[i],I3[i],S);
+    end
+  endgenerate
+
+endmodule
+
+// 1-bit 4x1 mux
+module MUX1_4x1(Y, I0, I1, I2, I3, S);
+  // output list
+  output Y;
+  // input list
+  input I0, I1, I2, I3;
+  input [1:0] S;
+  // wire list
+  wire a, b;
+
+  MUX1_2x1 M1a(a,I0,I1,S[0]);
+  MUX1_2x1 M1b(b,I2,I3,S[0]);
+  MUX1_2x1 M2(Y,a,b,S[1]);
 
 endmodule
 
 // 32-bit mux
 module MUX32_2x1(Y, I0, I1, S);
-// output list
-output [31:0] Y;
-//input list
-input [31:0] I0;
-input [31:0] I1;
-input S;
-genvar i;
-generate
-  for (i=0;i<32;i=i+1)
-  begin: mux32_2x1_gen
-    MUX1_2x1 MUX1_2x1_INST(Y[i],I0[i],I1[i],S);
-  end
-endgenerate
-
-
+  // output list
+  output [31:0] Y;
+  //input list
+  input [31:0] I0;
+  input [31:0] I1;
+  input S;
+  genvar i;
+  generate
+    for (i=0;i<32;i=i+1)
+    begin: mux32_2x1_gen
+      MUX1_2x1 MUX1_2x1_INST(Y[i],I0[i],I1[i],S);
+    end
+  endgenerate
 endmodule
 
 // 1-bit mux
 module MUX1_2x1(Y,I0, I1, S);
-//output list
-output Y;
-//input list
-input I0, I1, S;
-//internal wire
-wire notS, I0nNS, I1nS;
+  //output list
+  output Y;
+  //input list
+  input I0, I1, S;
+  //internal wire
+  wire notS, I0nNS, I1nS;
 
-not(notS, S);
-and(I0nNS, notS, I0);
-and(I1nS, S, I1);
-or(Y,I0nNS,I1nS);
+  not(notS, S);
+  and(I0nNS, notS, I0);
+  and(I1nS, S, I1);
+  or(Y,I0nNS,I1nS);
 
 endmodule
