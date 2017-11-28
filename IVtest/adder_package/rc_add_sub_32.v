@@ -52,7 +52,7 @@ genvar i;
 generate
   for (i=0; i<32; i=i+1)
   begin: add_sub_32_xor_gen
-    xor xor_inst(subWire[i],B[i],SnA[i]);
+    xor xor_inst(subWire[i],B[i],SnA);
   end
 endgenerate
 
