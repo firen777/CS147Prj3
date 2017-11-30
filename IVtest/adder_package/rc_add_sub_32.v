@@ -35,39 +35,39 @@ input SnA;
 endmodule
 
 module RC_ADD_SUB_32(Y, CO, A, B, SnA);
-// output list
-output [`DATA_INDEX_LIMIT:0] Y;
-output CO;
-// input list
-input [`DATA_INDEX_LIMIT:0] A;
-input [`DATA_INDEX_LIMIT:0] B;
-input SnA;
+  // output list
+  output [`DATA_INDEX_LIMIT:0] Y;
+  output CO;
+  // input list
+  input [`DATA_INDEX_LIMIT:0] A;
+  input [`DATA_INDEX_LIMIT:0] B;
+  input SnA;
 
-wire [`DATA_INDEX_LIMIT:0] carryWire; //ripple carry wire
-wire [`DATA_INDEX_LIMIT:0] subWire; //B xor SnA, for subtraction
+  wire [`DATA_INDEX_LIMIT:0] carryWire; //ripple carry wire
+  wire [`DATA_INDEX_LIMIT:0] subWire; //B xor SnA, for subtraction
 
 
-//XOR array for subtraction:
-genvar i;
-generate
-  for (i=0; i<32; i=i+1)
-  begin: add_sub_32_xor_gen
-    xor xor_inst(subWire[i],B[i],SnA);
-  end
-endgenerate
+  //XOR array for subtraction:
+  genvar i;
+  generate
+    for (i=0; i<32; i=i+1)
+    begin: add_sub_32_xor_gen
+      xor xor_inst(subWire[i],B[i],SnA);
+    end
+  endgenerate
 
-//module FULL_ADDER(S,CO,A,B, CI);
-//first full_adder
-FULL_ADDER F1(Y[0],carryWire[0],A[0],subWire[0],SnA);
+  //module FULL_ADDER(S,CO,A,B, CI);
+  //first full_adder
+  FULL_ADDER F1(Y[0],carryWire[0],A[0],subWire[0],SnA);
 
-//full_adder array [1..30]
-generate
-  for (i=1; i<32; i=i+1)
-  begin: add_sub_32_adder_gen
-    FULL_ADDER FULL_ADDER_INST(Y[i],carryWire[i],A[i],subWire[i],carryWire[i-1]);
-  end
-endgenerate
+  //full_adder array [1..30]
+  generate
+    for (i=1; i<32; i=i+1)
+    begin: add_sub_32_adder_gen
+      FULL_ADDER FULL_ADDER_INST(Y[i],carryWire[i],A[i],subWire[i],carryWire[i-1]);
+    end
+  endgenerate
 
-assign CO = carryWire[31];
+  assign CO = carryWire[31];
 
 endmodule
