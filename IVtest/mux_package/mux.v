@@ -18,16 +18,49 @@ module MUX32_32x1(Y, I0, I1, I2, I3, I4, I5, I6, I7,
                      I8, I9, I10, I11, I12, I13, I14, I15,
                      I16, I17, I18, I19, I20, I21, I22, I23,
                      I24, I25, I26, I27, I28, I29, I30, I31, S);
-// output list
-output [31:0] Y;
-//input list
-input [31:0] I0, I1, I2, I3, I4, I5, I6, I7;
-input [31:0] I8, I9, I10, I11, I12, I13, I14, I15;
-input [31:0] I16, I17, I18, I19, I20, I21, I22, I23;
-input [31:0] I24, I25, I26, I27, I28, I29, I30, I31;
-input [4:0] S;
+  // output list
+  output [31:0] Y;
+  //input list
+  input [31:0] I0, I1, I2, I3, I4, I5, I6, I7;
+  input [31:0] I8, I9, I10, I11, I12, I13, I14, I15;
+  input [31:0] I16, I17, I18, I19, I20, I21, I22, I23;
+  input [31:0] I24, I25, I26, I27, I28, I29, I30, I31;
+  input [4:0] S;
 
-// TBD
+  genvar i;
+  generate
+    for (i=0;i<32;i=i+1)
+    begin: mux32_32x1_gen
+      MUX1_32x1 MUX1_32x1_INST(Y[i],I0[i],I1[i],I2[i],I3[i],I4[i],I5[i],I6[i],I7[i],
+                                    I8[i],I9[i],I10[i],I11[i],I12[i],I13[i],I14[i],I15[i],
+                                    I16[i],I17[i],I18[i],I19[i],I20[i],I21[i],I22[i],I23[i],
+                                    I24[i],I25[i],I26[i],I27[i],I28[i],I29[i],I30[i],I31[i],S);
+    end
+  endgenerate
+
+endmodule
+
+// 1-bit 32x1 mux
+module MUX1_32x1(Y, I0, I1, I2, I3, I4, I5, I6, I7,
+                    I8, I9, I10, I11, I12, I13, I14, I15,
+                    I16, I17, I18, I19, I20, I21, I22, I23,
+                    I24, I25, I26, I27, I28, I29, I30, I31, S);
+  // output list
+  output Y;
+  // input list
+  input I0, I1, I2, I3, I4, I5, I6, I7,
+        I8, I9, I10, I11, I12, I13, I14, I15,
+        I16, I17, I18, I19, I20, I21, I22, I23,
+        I24, I25, I26, I27, I28, I29, I30, I31;
+  input [4:0] S;
+  // wire list
+  wire a, b, c;
+
+  MUX1_16x1 M1a(a, I0, I1, I2, I3, I4, I5, I6, I7,
+                   I8, I9, I10, I11, I12, I13, I14, I15, S[3:0]);
+  MUX1_16x1 M1b(b, I16, I17, I18, I19, I20, I21, I22, I23,
+                   I24, I25, I26, I27, I28, I29, I30, I31, S[3:0]);
+  MUX1_2x1 M2(Y,a,b,S[4]);
 
 endmodule
 
