@@ -26,19 +26,18 @@ module SHIFT32(Y,D,S, LnR);
   input LnR;
 
   wire [31:0] wire_shift; //shifter result
-  wire [30:5] wire_or;           //or([31:5])
+  wire wire_or;           //or([31:5])
 
-  BARREL_SHIFTER32 B_S32_INST(Y, D, S[4:0], LnR);
+  BARREL_SHIFTER32 B_S32_INST(wire_shift, D, S[4:0], LnR);
 
-  genvar i;
-  generate
-    for (i=5; i<31; i=i+1)
-    begin: shift32_gen
-      or or_inst(wire_or[i], S[i], S[i+1]);
-    end
-  endgenerate
+  or or_inst(wire_or, S[5], S[6], S[7], S[8], S[9],
+                      S[10], S[11], S[12], S[13], S[14],
+                      S[15], S[16], S[17], S[18], S[19],
+                      S[20], S[21], S[22], S[23], S[24],
+                      S[25], S[26], S[27], S[28], S[29], S[30], S[31]);
 
-  MUX32_2x1 M32_INST(Y, wire_shift, 32'h0, wire_or[30]);
+
+  MUX32_2x1 M32_INST(Y, wire_shift, 32'h0, wire_or);
 
 endmodule
 
