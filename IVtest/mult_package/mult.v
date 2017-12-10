@@ -1,4 +1,5 @@
 `include "rc_add_sub_32.v"
+`include "logic_32_bit.v"
 // Name: mult.v
 // Module: MULT32 , MULT32_U
 //
@@ -50,7 +51,7 @@ module MULT32_U(HI, LO, A, B);
   generate
     for (i=0; i<32; i=i+1)
     begin: mult32_u_and_gen
-      AND32_ARRAY AND32_INST (wire_And[i],A,{32{B[i]}});
+      AND32_2x1 AND32_2x1_INST (wire_And[i],A,{32{B[i]}});
     end
   endgenerate
 
@@ -79,22 +80,4 @@ module MULT32_U(HI, LO, A, B);
   //HI[0..31]
   assign HI = {wire_cout[30], wire_Add[30][31:1]};
 
-endmodule
-
-//32 bit parallel AND gates.
-module AND32_ARRAY (Y, A, B);
-  // output list
-  output [31:0] Y;
-
-  // input list
-  input [31:0] A;
-  input [31:0] B;
-
-  genvar i;
-  generate
-    for (i=0;i<32;i=i+1)
-    begin: and32_array_gen
-      and and_inst(Y[i],A[i],B[i]);
-    end
-  endgenerate
 endmodule
