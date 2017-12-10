@@ -45,9 +45,9 @@ module RC_ADD_SUB_64(Y, CO, A, B, SnA);
 
   //module FULL_ADDER(S,CO,A,B, CI);
   //first full_adder
-  FULL_ADDER F1(Y[0],carryWire[0],A[0],subWire[0],SnA);
+  FULL_ADDER F0(Y[0],carryWire[0],A[0],subWire[0],SnA);
 
-  //full_adder array [1..30]
+  //full_adder array [1..end]
   generate
     for (i=1; i<64; i=i+1)
     begin: add_sub_64_adder_gen
@@ -90,9 +90,9 @@ module RC_ADD_SUB_32(Y, CO, A, B, SnA);
 
   //module FULL_ADDER(S,CO,A,B, CI);
   //first full_adder
-  FULL_ADDER F1(Y[0],carryWire[0],A[0],subWire[0],SnA);
+  FULL_ADDER F0(Y[0],carryWire[0],A[0],subWire[0],SnA);
 
-  //full_adder array [1..30]
+  //full_adder array [1..end]
   generate
     for (i=1; i<32; i=i+1)
     begin: add_sub_32_adder_gen
