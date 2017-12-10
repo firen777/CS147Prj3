@@ -1,10 +1,12 @@
+`include "logic_32_bit.v"
+`include "full_adder.v"
 // Name: logic.v
-// Module: 
-// Input: 
-// Output: 
+// Module:
+// Input:
+// Output:
 //
 // Notes: Common definitions
-// 
+//
 //
 // Revision History:
 //
@@ -20,7 +22,7 @@ output [63:0] Y;
 //input list
 input [63:0] A;
 
-// TBD
+
 
 endmodule
 
@@ -31,7 +33,11 @@ output [31:0] Y;
 //input list
 input [31:0] A;
 
-// TBD
+wire [31:0] notA; //!A
+
+INV32_1x1 INV32_1x1_INST(notA,A);
+
+
 
 endmodule
 
@@ -47,7 +53,7 @@ input RESET;
 
 endmodule
 
-// 1 bit register +ve edge, 
+// 1 bit register +ve edge,
 // Preset on nP=0, nR=1, reset on nP=1, nR=0;
 // Undefined nP=0, nR=0
 // normal operation nP=1, nR=1
@@ -60,7 +66,7 @@ output Q,Qbar;
 
 endmodule
 
-// 1 bit flipflop +ve edge, 
+// 1 bit flipflop +ve edge,
 // Preset on nP=0, nR=1, reset on nP=1, nR=0;
 // Undefined nP=0, nR=0
 // normal operation nP=1, nR=1

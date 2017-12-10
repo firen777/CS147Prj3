@@ -22,7 +22,13 @@ output [31:0] Y;
 input [31:0] A;
 input [31:0] B;
 
-// TBD
+genvar i;
+generate
+  for (i=0;i<32;i=i+1)
+  begin: nor32_2x1_gen
+    nor nor_inst(Y[i],A[i],B[i]);
+  end
+endgenerate
 
 endmodule
 
@@ -46,23 +52,35 @@ endmodule
 
 // 32-bit inverter
 module INV32_1x1(Y,A);
-//output
-output [31:0] Y;
-//input
-input [31:0] A;
+  //output
+  output [31:0] Y;
+  //input
+  input [31:0] A;
 
-// TBD
+  genvar i;
+  generate
+    for (i=0;i<32;i=i+1)
+    begin: inv32_1x1_gen
+      not not_inst(Y[i],A[i]);
+    end
+  endgenerate
 
 endmodule
 
 // 32-bit OR
 module OR32_2x1(Y,A,B);
-//output
-output [31:0] Y;
-//input
-input [31:0] A;
-input [31:0] B;
+  //output
+  output [31:0] Y;
+  //input
+  input [31:0] A;
+  input [31:0] B;
 
-// TBD
+  genvar i;
+  generate
+    for (i=0;i<32;i=i+1)
+    begin: or32_2x1_gen
+      or or_inst(Y[i],A[i],B[i]);
+    end
+  endgenerate
 
 endmodule
