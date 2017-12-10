@@ -43,12 +43,32 @@ module MULT32_U(HI, LO, A, B);
   output [31:0] HI;
   output [31:0] LO;
   // input list
-  input [31:0] A;
-  input [31:0] B;
+  input [31:0] A; //MCND
+  input [31:0] B; //MPLR
 
-  wire [31:0][31:0] inner; //
+  wire [31:0] wire_And [31:0]; //output wires of AND gates.
+  wire [31:0] wire_Add [31:0]; //output wires of Adders.
+  wire [31:0] wire_cout;       //output wire of carry out.
 
+  genvar i;
+  //connect AND gates.
+  generate
+    for (i=0; i<32; i=i+1)
+    begin: mult32_u_and_gen
+      AND32_ARRAY AND32_INST (wire_And[i],A,{32{B[i]}});
+    end
+  endgenerate
 
+  //adder[0]
+  RC_ADD_SUB_32 ADD32_INST0 (wire_Add[0], wire_cout[0], {1'b0,wire_And[0][31:1]}, wire_And[1], 1'b0);
+
+  //adder[1..29]
+  generate
+    for (i=1; i<30; i=i+1)
+    begin: mult32_u_add_gen
+      RC_ADD_SUB_32 ADD32_INST (wire_Add[i], wire_cout[i], {wire_cout[i-1],wire_Add[i-1][31:1]}, wire_And[i+1], 1'b0);
+    end
+  endgenerate
 
 endmodule
 
