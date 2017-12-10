@@ -1,5 +1,6 @@
 `include "rc_add_sub_32.v"
 `include "logic_32_bit.v"
+`include "mux.v"
 // Name: mult.v
 // Module: MULT32 , MULT32_U
 //

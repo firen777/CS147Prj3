@@ -16,19 +16,19 @@
 
 // 32-bit NOR
 module NOR32_2x1(Y,A,B);
-//output
-output [31:0] Y;
-//input
-input [31:0] A;
-input [31:0] B;
+  //output
+  output [31:0] Y;
+  //input
+  input [31:0] A;
+  input [31:0] B;
 
-genvar i;
-generate
-  for (i=0;i<32;i=i+1)
-  begin: nor32_2x1_gen
-    nor nor_inst(Y[i],A[i],B[i]);
-  end
-endgenerate
+  genvar i;
+  generate
+    for (i=0;i<32;i=i+1)
+    begin: nor32_2x1_gen
+      nor nor_inst(Y[i],A[i],B[i]);
+    end
+  endgenerate
 
 endmodule
 

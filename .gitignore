@@ -3,6 +3,7 @@
 *.vcd
 # testing
 *.ivt.v
+test_range/
 ## IVtest/
 
 # MISC:

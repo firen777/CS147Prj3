@@ -1,5 +1,5 @@
 `include "logic_32_bit.v"
-`include "full_adder.v"
+`include "rc_add_sub_32.v"
 // Name: logic.v
 // Module:
 // Input:
@@ -17,39 +17,46 @@
 //
 // 64-bit two's complement
 module TWOSCOMP64(Y,A);
-//output list
-output [63:0] Y;
-//input list
-input [63:0] A;
+  //output list
+  output [63:0] Y;
+  //input list
+  input [63:0] A;
 
+  wire [63:0] notA; //!A
+  wire CO; //dummy wire
 
+  INV32_1x1 INV32_1x1_INST1(notA[31:0],A[31:0]);
+  INV32_1x1 INV32_1x1_INST2(notA[63:32],A[63:32]);
+
+  RC_ADD_SUB_64 RC_ADD_SUB_64_INST(Y, CO, notA, 'h0000000000000001, 1'b0);
 
 endmodule
 
 // 32-bit two's complement
 module TWOSCOMP32(Y,A);
-//output list
-output [31:0] Y;
-//input list
-input [31:0] A;
+  //output list
+  output [31:0] Y;
+  //input list
+  input [31:0] A;
 
-wire [31:0] notA; //!A
+  wire [31:0] notA; //!A
+  wire CO; //dummy wire
 
-INV32_1x1 INV32_1x1_INST(notA,A);
+  INV32_1x1 INV32_1x1_INST(notA,A);
 
-
+  RC_ADD_SUB_32 RC_ADD_SUB_32_INST(Y, CO, notA, 'h00000001, 1'b0);
 
 endmodule
 
 // 32-bit registere +ve edge, Reset on RESET=0
 module REG32(Q, D, LOAD, CLK, RESET);
-output [31:0] Q;
+  output [31:0] Q;
 
-input CLK, LOAD;
-input [31:0] D;
-input RESET;
+  input CLK, LOAD;
+  input [31:0] D;
+  input RESET;
 
-// TBD
+  // TBD
 
 endmodule
 
@@ -58,11 +65,11 @@ endmodule
 // Undefined nP=0, nR=0
 // normal operation nP=1, nR=1
 module REG1(Q, Qbar, D, L, C, nP, nR);
-input D, C, L;
-input nP, nR;
-output Q,Qbar;
+  input D, C, L;
+  input nP, nR;
+  output Q,Qbar;
 
-// TBD
+  // TBD
 
 endmodule
 
@@ -71,11 +78,11 @@ endmodule
 // Undefined nP=0, nR=0
 // normal operation nP=1, nR=1
 module D_FF(Q, Qbar, D, C, nP, nR);
-input D, C;
-input nP, nR;
-output Q,Qbar;
+  input D, C;
+  input nP, nR;
+  output Q,Qbar;
 
-// TBD
+  // TBD
 
 endmodule
 
@@ -84,11 +91,11 @@ endmodule
 // Undefined nP=0, nR=0
 // normal operation nP=1, nR=1
 module D_LATCH(Q, Qbar, D, C, nP, nR);
-input D, C;
-input nP, nR;
-output Q,Qbar;
+  input D, C;
+  input nP, nR;
+  output Q,Qbar;
 
-// TBD
+  // TODO
 
 endmodule
 
@@ -97,56 +104,56 @@ endmodule
 // Undefined nP=0, nR=0
 // normal operation nP=1, nR=1
 module SR_LATCH(Q,Qbar, S, R, C, nP, nR);
-input S, R, C;
-input nP, nR;
-output Q,Qbar;
+  input S, R, C;
+  input nP, nR;
+  output Q,Qbar;
 
-// TBD
+  // TBD
 
 endmodule
 
 // 5x32 Line decoder
 module DECODER_5x32(D,I);
-// output
-output [31:0] D;
-// input
-input [4:0] I;
+  // output
+  output [31:0] D;
+  // input
+  input [4:0] I;
 
-// TBD
+  // TBD
 
 endmodule
 
 // 4x16 Line decoder
 module DECODER_4x16(D,I);
-// output
-output [15:0] D;
-// input
-input [3:0] I;
+  // output
+  output [15:0] D;
+  // input
+  input [3:0] I;
 
-// TBD
+  // TBD
 
 
 endmodule
 
 // 3x8 Line decoder
 module DECODER_3x8(D,I);
-// output
-output [7:0] D;
-// input
-input [2:0] I;
+  // output
+  output [7:0] D;
+  // input
+  input [2:0] I;
 
-//TBD
+  //TBD
 
 
 endmodule
 
 // 2x4 Line decoder
 module DECODER_2x4(D,I);
-// output
-output [3:0] D;
-// input
-input [1:0] I;
+  // output
+  output [3:0] D;
+  // input
+  input [1:0] I;
 
-// TBD
+  // TBD
 
 endmodule
