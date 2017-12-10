@@ -47,7 +47,7 @@ module MULT32(HI, LO, A, B);
   MUX32_2x1 M32_1(mcnd, A, wire_2comp1, A[31]);
   MUX32_2x1 M32_2(mplr, B, wire_2comp2, B[31]);
 
-  MULT32_U MULT32_U_INST(mult_u_HI, mult_u_LO, wire_2comp1, wire_2comp2);
+  MULT32_U MULT32_U_INST(mult_u_HI, mult_u_LO, mcnd, mplr);
 
   TWOSCOMP64 TWOSCOMP64_INST(wire_2comp64, {mult_u_HI, mult_u_LO});
   xor(finalS, A[31], B[31]);

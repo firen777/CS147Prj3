@@ -1,18 +1,18 @@
 `include "mult.v"
 
 `include "prj_definition.v"
-module MULT32_U_TB;
+module MULT32_TB;
 
   reg [`DATA_INDEX_LIMIT:0] A;
   reg [`DATA_INDEX_LIMIT:0] B;
   wire [`DATA_INDEX_LIMIT:0] HI;
   wire [`DATA_INDEX_LIMIT:0] LO;
 
-  MULT32_U MULT32_U_INST(HI, LO, A, B);
+  MULT32 MULT32_INST(HI, LO, A, B);
 
   initial begin
     $dumpfile("tb.vcd");
-    $dumpvars(0, MULT32_U_TB);
+    $dumpvars(0, MULT32_TB);
     A='h00000000;B='h00000000;
     #5 A='h00000001;B='h00000001;
     #5 A='h00000002;B='h00000002;
