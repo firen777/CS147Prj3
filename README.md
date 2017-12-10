@@ -1,5 +1,10 @@
 # CS147Prj3
-CS147Prj3
+
+[Dec 09, 2017] If you are using 32-bit register for instruction register in data path and wondering why instruction is coming to control unit one clock cycle late. If there is register it will delay output by one clock cycle (due to back-to-back latch operation on inverting clock edge). I'd suggest to build a 32-bit latch (using your basic 1-bit D-Latch) and use instruction register load signal as 'clock' for this latch in data path instantiation. That will solve delayed instruction in control unit module.
+
+[Dec 06, 2017] For 2x1 mux please follow conventional mux (not the one on the slide - which is inversion selection). Your function should be Y = S'.I0 + S.I1.
+
+[Dec 01, 2017] Please make sure to implement a +ve edge triggered flipflop - the one described in slide and video is -ve edge triggered flip flop. Register test bench will fail otherwise.
 
 [Nov 21, 2017] Review the design for 'register_file' It has independent 'read' and 'write' signals. 'HiZ' is expected output from this module is 'read' is set to 0. To make this module work correctly with data path, keep 'read' mode on. i.e. even at write cycle control signal should be 'read=1, write=1' Otherwise you may get unexpected behavior from simulator at gate level simulation including slowness and aborting by hitting limit of eval cycle.
 
