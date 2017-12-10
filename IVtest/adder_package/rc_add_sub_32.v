@@ -21,16 +21,41 @@
 //------------------------------------------------------------------------------------------
 `include "prj_definition.v"
 
+// 64 bit full adder
 module RC_ADD_SUB_64(Y, CO, A, B, SnA);
-// output list
-output [63:0] Y;
-output CO;
-// input list
-input [63:0] A;
-input [63:0] B;
-input SnA;
+  // output list
+  output [63:0] Y;
+  output CO;
+  // input list
+  input [63:0] A;
+  input [63:0] B;
+  input SnA;
 
-// TBD
+  wire [63:0] carryWire; //ripple carry wire
+  wire [63:0] subWire; //B xor SnA, for subtraction
+
+  //XOR array for subtraction:
+  genvar i;
+  generate
+    for (i=0; i<64; i=i+1)
+    begin: add_sub_64_xor_gen
+      xor xor_inst(subWire[i],B[i],SnA);
+    end
+  endgenerate
+
+  //module FULL_ADDER(S,CO,A,B, CI);
+  //first full_adder
+  FULL_ADDER F1(Y[0],carryWire[0],A[0],subWire[0],SnA);
+
+  //full_adder array [1..30]
+  generate
+    for (i=1; i<64; i=i+1)
+    begin: add_sub_64_adder_gen
+      FULL_ADDER FULL_ADDER_INST(Y[i],carryWire[i],A[i],subWire[i],carryWire[i-1]);
+    end
+  endgenerate
+
+  assign CO = carryWire[63];
 
 endmodule
 

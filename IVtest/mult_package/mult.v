@@ -32,6 +32,12 @@ module MULT32(HI, LO, A, B);
 
 endmodule
 
+// 32-bits unsigned multiplier
+// Output: HI: 32 higher bits
+//         LO: 32 lower bits
+//
+// Input: A : 32-bit input
+//        B : 32-bit input
 module MULT32_U(HI, LO, A, B);
   // output list
   output [31:0] HI;
@@ -40,7 +46,9 @@ module MULT32_U(HI, LO, A, B);
   input [31:0] A;
   input [31:0] B;
 
-  // TBD
+  wire [31:0][31:0] inner; //
+
+
 
 endmodule
 
