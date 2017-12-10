@@ -1,6 +1,8 @@
 `include "rc_add_sub_32.v"
-`include "logic_32_bit.v"
+`include "logic.v"
 `include "mux.v"
+`ifndef _MULT_V_
+`define _MULT_V_
 // Name: mult.v
 // Module: MULT32 , MULT32_U
 //
@@ -30,7 +32,28 @@ module MULT32(HI, LO, A, B);
   input [31:0] A;
   input [31:0] B;
 
-  // TBD
+  wire [31:0] wire_2comp1;  //complement of MCND
+  wire [31:0] wire_2comp2;  //complement of MPLR
+  wire [31:0] mcnd;         //MCND to used in unsigned
+  wire [31:0] mplr;         //MPLR to used in unsigned
+  wire [31:0] mult_u_HI;    //HI from unsigned
+  wire [31:0] mult_u_LO;    //LO from unsigned
+  wire [63:0] wire_2comp64; //complement of unsigned
+  wire finalS;              //Selection for final 64bit 2x1 mux
+
+  TWOSCOMP32 TCOMP32_1(wire_2comp1,A);
+  TWOSCOMP32 TCOMP32_2(wire_2comp2,B);
+
+  MUX32_2x1 M32_1(mcnd, A, wire_2comp1, A[31]);
+  MUX32_2x1 M32_2(mplr, B, wire_2comp2, B[31]);
+
+  MULT32_U MULT32_U_INST(mult_u_HI, mult_u_LO, wire_2comp1, wire_2comp2);
+
+  TWOSCOMP64 TWOSCOMP64_INST(wire_2comp64, {mult_u_HI, mult_u_LO});
+  xor(finalS, A[31], B[31]);
+
+  MUX32_2x1 M64_HI(HI, mult_u_HI, wire_2comp64[63:32], finalS);
+  MUX32_2x1 M64_LO(LO, mult_u_LO, wire_2comp64[31:0], finalS);
 
 endmodule
 
@@ -82,3 +105,6 @@ module MULT32_U(HI, LO, A, B);
   assign HI = {wire_cout[30], wire_Add[30][31:1]};
 
 endmodule
+
+//------------------------------------------------------------------------------------------
+`endif

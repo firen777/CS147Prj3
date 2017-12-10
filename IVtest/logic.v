@@ -1,5 +1,7 @@
 `include "logic_32_bit.v"
 `include "rc_add_sub_32.v"
+`ifndef _LOGIC_V_
+`define _LOGIC_V_
 // Name: logic.v
 // Module:
 // Input:
@@ -28,7 +30,7 @@ module TWOSCOMP64(Y,A);
   INV32_1x1 INV32_1x1_INST1(notA[31:0],A[31:0]);
   INV32_1x1 INV32_1x1_INST2(notA[63:32],A[63:32]);
 
-  RC_ADD_SUB_64 RC_ADD_SUB_64_INST(Y, CO, notA, 'h0000000000000001, 1'b0);
+  RC_ADD_SUB_64 RC_ADD_SUB_64_INST(Y, CO, notA, 64'h0000000000000001, 1'b0);
 
 endmodule
 
@@ -44,7 +46,7 @@ module TWOSCOMP32(Y,A);
 
   INV32_1x1 INV32_1x1_INST(notA,A);
 
-  RC_ADD_SUB_32 RC_ADD_SUB_32_INST(Y, CO, notA, 'h00000001, 1'b0);
+  RC_ADD_SUB_32 RC_ADD_SUB_32_INST(Y, CO, notA, 32'h00000001, 1'b0);
 
 endmodule
 
@@ -157,3 +159,6 @@ module DECODER_2x4(D,I);
   // TBD
 
 endmodule
+
+//------------------------------------------------------------------------------------------
+`endif

@@ -1,10 +1,13 @@
+`ifndef _PRJ_DEFINITION_V_
+`define _PRJ_DEFINITION_V_
+
 // Name: prj_definition.v
-// Module: 
-// Input: 
-// Output: 
+// Module:
+// Input:
+// Output:
 //
 // Notes: Common definitions
-// 
+//
 //
 // Revision History:
 //
@@ -41,3 +44,6 @@
 // define ISA parameters
 `define INST_START_ADDR 32'h00001000
 `define INIT_STACK_POINTER 32'h03ffffff
+
+//------------------------------------------------------------------------------------------
+`endif

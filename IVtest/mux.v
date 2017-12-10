@@ -1,3 +1,5 @@
+`ifndef _MUX_V_
+`define _MUX_V_
 // Name: mux.v
 // Module:
 // Input:
@@ -12,8 +14,8 @@
 //------------------------------------------------------------------------------------------
 //  1.0     Sep 02, 2014	Kaushik Patra	kpatra@sjsu.edu		Initial creation
 //------------------------------------------------------------------------------------------
-//
-// 32-bit mux
+
+// 32-bit 32x1 mux
 module MUX32_32x1(Y, I0, I1, I2, I3, I4, I5, I6, I7,
                      I8, I9, I10, I11, I12, I13, I14, I15,
                      I16, I17, I18, I19, I20, I21, I22, I23,
@@ -195,7 +197,7 @@ module MUX1_4x1(Y, I0, I1, I2, I3, S);
 
 endmodule
 
-// 32-bit mux
+// 32-bit 2x1 mux
 module MUX32_2x1(Y, I0, I1, S);
   // output list
   output [31:0] Y;
@@ -212,7 +214,7 @@ module MUX32_2x1(Y, I0, I1, S);
   endgenerate
 endmodule
 
-// 1-bit mux
+// 1-bit 2x1 mux
 module MUX1_2x1(Y,I0, I1, S);
   //output list
   output Y;
@@ -227,3 +229,6 @@ module MUX1_2x1(Y,I0, I1, S);
   or(Y,I0nNS,I1nS);
 
 endmodule
+
+//------------------------------------------------------------------------------------------
+`endif

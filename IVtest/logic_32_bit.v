@@ -1,3 +1,5 @@
+`ifndef _LOGIC_32_BIT_V_
+`define _LOGIC_32_BIT_V_
 // Name: logic_32_bit.v
 // Module:
 // Input:
@@ -84,3 +86,5 @@ module OR32_2x1(Y,A,B);
   endgenerate
 
 endmodule
+//------------------------------------------------------------------------------------------
+`endif

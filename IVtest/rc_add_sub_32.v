@@ -1,4 +1,6 @@
 `include "full_adder.v"
+`ifndef _RC_ADD_SUB_32_V_
+`define _RC_ADD_SUB_32_V_
 // Name: rc_add_sub_32.v
 // Module: RC_ADD_SUB_32
 //
@@ -103,3 +105,6 @@ module RC_ADD_SUB_32(Y, CO, A, B, SnA);
   assign CO = carryWire[31];
 
 endmodule
+
+//------------------------------------------------------------------------------------------
+`endif

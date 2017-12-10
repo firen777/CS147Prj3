@@ -1,3 +1,5 @@
+`ifndef _HALF_ADDER_V_
+`define _HALF_ADDER_V_
 // Name: half_adder.v
 // Module: HALF_ADDER
 //
@@ -26,3 +28,6 @@ xor xor1(Y,A,B);
 and and1(C,A,B);
 
 endmodule
+
+//------------------------------------------------------------------------------------------
+`endif
