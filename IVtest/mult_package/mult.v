@@ -21,26 +21,26 @@
 `include "prj_definition.v"
 
 module MULT32(HI, LO, A, B);
-// output list
-output [31:0] HI;
-output [31:0] LO;
-// input list
-input [31:0] A;
-input [31:0] B;
+  // output list
+  output [31:0] HI;
+  output [31:0] LO;
+  // input list
+  input [31:0] A;
+  input [31:0] B;
 
-// TBD
+  // TBD
 
 endmodule
 
 module MULT32_U(HI, LO, A, B);
-// output list
-output [31:0] HI;
-output [31:0] LO;
-// input list
-input [31:0] A;
-input [31:0] B;
+  // output list
+  output [31:0] HI;
+  output [31:0] LO;
+  // input list
+  input [31:0] A;
+  input [31:0] B;
 
-// TBD
+  // TBD
 
 endmodule
 

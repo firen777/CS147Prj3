@@ -34,6 +34,13 @@ input SnA;
 
 endmodule
 
+// 32 bit full adder
+// Output: Y : Output 32-bit
+//         CO : Carry Out
+//
+// Input: A : 32-bit input
+//        B : 32-bit input
+//        SnA : if SnA=0 it is add, subtraction otherwise
 module RC_ADD_SUB_32(Y, CO, A, B, SnA);
   // output list
   output [`DATA_INDEX_LIMIT:0] Y;
