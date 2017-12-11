@@ -89,17 +89,50 @@
 
   //[7]r1_sel_1
   wire r1_sel_1;
-    wire [31:0] r1_sel_1_out;
-    MUX32_2x1 r1_sel_1_mux_inst(.Y(r1_sel_1_out), .I0({27'b0,rs}), .I1(32'b0), .S(r1_sel_1));
+    wire [4:0] r1_sel_1_out;
+    MUX5_2x1 r1_sel_1_mux_inst(.Y(r1_sel_1_out), .I0(rs), .I1(5'b0), .S(r1_sel_1));
 
-  //[8]reg_r
-  //[9]reg_w
+  //[8]reg_r [9]reg_w
+  wire reg_r, reg_w;
+    wire [`DATA_INDEX_LIMIT:0] rf_r1_out;
+    wire [`DATA_INDEX_LIMIT:0] rf_r2_out;
+    wire [`DATA_INDEX_LIMIT:0] rf_wr_data;
+    wire [4:0] rf_wr_addr;
+    REGISTER_FILE_32x32 reg_file_inst(.DATA_R1(rf_r1_out), .DATA_R2(rf_r2_out), .ADDR_R1(r1_sel_1_out), .ADDR_R2(rt),
+                                      .DATA_W(rf_wr_data), .ADDR_W(rf_wr_addr), .READ(reg_r), .WRITE(reg_w), .CLK(CLK), .RST(RST));
+                                      //Danger Flag: RST or nRST?
+
   //[10]wa_sel_1
+  wire wa_sel_1;
+    wire [4:0] wa_sel_1_out;
+    MUX5_2x1 wa_sel_1_mux_inst(.Y(wa_sel_1_out), .I0(rd), .I1(rt), .S(wa_sel_1));
+
   //[11]wa_sel_2
+  wire wa_sel_2;
+    wire [4:0] wa_sel_2_out;
+    MUX5_2x1 wa_sel_2_mux_inst(.Y(wa_sel_2_out), .I0(5'b00000), .I1(5'b11111), .S(wa_sel_2));
+
   //[12]wa_sel_3
+  wire wa_sel_3;
+    wire [4:0] wa_sel_3_out;
+    MUX5_2x1 wa_sel_3_mux_inst(.Y(wa_sel_3_out), .I0(wa_sel_2_out), .I1(wa_sel_1_out), .S(wa_sel_3));
+
   //[13]wd_sel_1
+  wire wd_sel_1;
+    wire [`DATA_INDEX_LIMIT:0] wd_sel_1_out;
+    wire [`DATA_INDEX_LIMIT:0] wd_sel_1_i0;
+    MUX32_2x1 wd_sel_1_mux_inst(.Y(wd_sel_1_out), .I0(wd_sel_1_i0), .I1(DATA_IN), .S(wd_sel_1));
+
   //[14]wd_sel_2
+  wire wd_sel_2;
+    wire [`DATA_INDEX_LIMIT:0] wd_sel_2_out;
+    wire [`DATA_INDEX_LIMIT:0] wd_sel_2_i1;
+    MUX32_2x1 wd_sel_2_mux_inst(.Y(wd_sel_2_out), .I0(wd_sel_1_out), .I1(wd_sel_2_i1), .S(wd_sel_2));
+
   //[15]wd_sel_3
+  wire wd_sel_3;
+    wire [`DATA_INDEX_LIMIT:0] wd_sel_3_out;
+    MUX32_2x1 wd_sel_3_mux_inst(.Y(wd_sel_3_out), .I0(pc_plus_one), .I1(wd_sel_2_out), .S(wd_sel_3));
   //[16]sp_load
   //[17]op1_sel_1
   //[18]op2_sel_1
@@ -114,5 +147,23 @@
 
 
 endmodule
+
+// 5-bit 2x1 mux
+module MUX5_2x1(Y, I0, I1, S);
+  // output list
+  output [4:0] Y;
+  //input list
+  input [4:0] I0;
+  input [4:0] I1;
+  input S;
+  genvar i;
+  generate
+    for (i=0;i<5;i=i+1)
+    begin: mux5_2x1_gen
+      MUX1_2x1 MUX1_2x1_INST(Y[i],I0[i],I1[i],S);
+    end
+  endgenerate
+endmodule
+
 //------------------------------------------------------------------------------------------
 `endif
