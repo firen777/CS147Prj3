@@ -84,7 +84,13 @@ module D_FF(Q, Qbar, D, C, nP, nR);
   input nP, nR;
   output Q,Qbar;
 
-  // TBD
+  wire w_notC;  //!CLK
+  wire w_DQ;    //Q from D Latch
+  wire w_DnQ;   //!Q from D Latch
+
+  not not_inst(w_notC, C);
+  D_LATCH D_LATCH_INST(.Q(w_DQ), .Qbar(w_DnQ), .D(D), .C(w_notC), .nP(nP), .nR(nR));
+  SR_LATCH SR_LATCH_INST(.Q(Q), .Qbar(Qbar), .S(w_DQ), .R(w_DnQ), .C(C), .nP(nP), .nR(nR));
 
 endmodule
 
