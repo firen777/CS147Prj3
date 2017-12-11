@@ -133,14 +133,50 @@
   wire wd_sel_3;
     wire [`DATA_INDEX_LIMIT:0] wd_sel_3_out;
     MUX32_2x1 wd_sel_3_mux_inst(.Y(wd_sel_3_out), .I0(pc_plus_one), .I1(wd_sel_2_out), .S(wd_sel_3));
+
   //[16]sp_load
+  wire sp_load;
+    wire [`DATA_INDEX_LIMIT:0] sp_Q;
+    wire [`DATA_INDEX_LIMIT:0] sp_D;
+    REG32 pc_inst(.Q(sp_Q), .D(sp_D), .LOAD(sp_load), .CLK(CLK), .RESET(RST));  //Danger Flag: RST or nRST?
+
   //[17]op1_sel_1
+  wire op1_sel_1;
+    wire [`DATA_INDEX_LIMIT:0] op1_sel_1_out;
+    MUX32_2x1 op1_sel_1_mux_inst(.Y(op1_sel_1_out), .I0(rf_r1_out), .I1(sp_Q), .S(op1_sel_1));
+
   //[18]op2_sel_1
+  wire op2_sel_1;
+    wire [`DATA_INDEX_LIMIT:0] op2_sel_1_out;
+    wire [`DATA_INDEX_LIMIT:0] op2_sel_1_i1;
+    MUX32_2x1 op2_sel_1_mux_inst(.Y(op2_sel_1_out), .I0(32'h00000001), .I1(op2_sel_1_i1), .S(op2_sel_1));
+
   //[19]op2_sel_2
+  wire op2_sel_2;
+    wire [`DATA_INDEX_LIMIT:0] op2_sel_2_out;
+    wire [`DATA_INDEX_LIMIT:0] op2_sel_2_i0;
+    wire [`DATA_INDEX_LIMIT:0] op2_sel_2_i1;
+    MUX32_2x1 op2_sel_2_mux_inst(.Y(op2_sel_2_out), .I0(op2_sel_2_i0), .I1(op2_sel_2_i1), .S(op2_sel_2));
+
   //[20]op2_sel_3
+  wire op2_sel_3;
+    wire [`DATA_INDEX_LIMIT:0] op2_sel_3_out;
+    MUX32_2x1 op2_sel_3_mux_inst(.Y(op2_sel_3_out), .I0(op2_sel_2_out), .I1(op2_sel_1_out), .S(op2_sel_3));
+
   //[21]op2_sel_4
+  wire op2_sel_4;
+    wire [`DATA_INDEX_LIMIT:0] op2_sel_4_out;
+    MUX32_2x1 op2_sel_3_mux_inst(.Y(op2_sel_4_out), .I0(op2_sel_3_out), .I1(rf_r2_out), .S(op2_sel_4));
+
   //[22:25]alu_oprn
+  wire [3:0] alu_oprn;
+    wire [`DATA_INDEX_LIMIT:0] alu_out;
+    ALU alu_inst(.OUT(alu_out), .ZERO(ZERO), .OP1(op1_sel_1_out), .OP2(op2_sel_4_out), .OPRN({2'b00, alu_oprn}));
+    //Danger Flag: oprn bit order?
+
   //[26]ma_sel_1
+  wire ma_sel_1;
+    
   //[27]ma_sel_2
   //[28]md_sel_1
 
