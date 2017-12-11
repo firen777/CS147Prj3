@@ -97,7 +97,20 @@ module D_LATCH(Q, Qbar, D, C, nP, nR);
   input nP, nR;
   output Q,Qbar;
 
-  // TODO
+  wire w_0_0;     //output from first level, first nand
+  wire w_0_1;     //output from first level, second nand
+  wire w_1_0;     //output from second level, first nand
+  wire w_1_1;     //output from second level, second nand
+  wire not_D;     //!D
+
+  not not_inst(not_D, D);
+  nand nand_lvl0_0(w_0_0, D, C);
+  nand nand_lvl0_1(w_0_1, not_D, C);
+  nand nand_lvl1_0(w_1_0, nP, w_0_0, w_1_1);
+  nand nand_lvl1_0(w_1_1, nR, w_0_1, w_1_0);
+
+  assign Q = w_1_0;
+  assign Qbar = w_1_1;
 
 endmodule
 
@@ -110,7 +123,18 @@ module SR_LATCH(Q,Qbar, S, R, C, nP, nR);
   input nP, nR;
   output Q,Qbar;
 
-  // TBD
+  wire w_0_0;     //output from first level, first nand
+  wire w_0_1;     //output from first level, second nand
+  wire w_1_0;     //output from second level, first nand
+  wire w_1_1;     //output from second level, second nand
+
+  nand nand_lvl0_0(w_0_0, S, C);
+  nand nand_lvl0_1(w_0_1, R, C);
+  nand nand_lvl1_0(w_1_0, nP, w_0_0, w_1_1);
+  nand nand_lvl1_0(w_1_1, nR, w_0_1, w_1_0);
+
+  assign Q = w_1_0;
+  assign Qbar = w_1_1;
 
 endmodule
 
