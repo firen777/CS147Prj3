@@ -72,7 +72,7 @@
   wire [5:0] opcode, funct;
     wire [4:0] rs, rt, rd, shamt;
     wire [15:0] imm;
-    wire [25:0] addr;
+    wire [25:0] addrs;
     assign opcode = ir_Q[31:26];
     assign rs = ir_Q[25:21];
     assign rt = ir_Q[20:16];
@@ -80,7 +80,7 @@
     assign shamt = ir_Q[10:6];
     assign funct = ir_Q[5:0];
     assign imm = ir_Q[15:0];
-    assign addr = ir_Q[25:0];
+    assign addrs = ir_Q[25:0];
 
 
   //[5]mem_r
@@ -166,7 +166,7 @@
   //[21]op2_sel_4
   wire op2_sel_4;
     wire [`DATA_INDEX_LIMIT:0] op2_sel_4_out;
-    MUX32_2x1 op2_sel_3_mux_inst(.Y(op2_sel_4_out), .I0(op2_sel_3_out), .I1(rf_r2_out), .S(op2_sel_4));
+    MUX32_2x1 op2_sel_4_mux_inst(.Y(op2_sel_4_out), .I0(op2_sel_3_out), .I1(rf_r2_out), .S(op2_sel_4));
 
   //[22:25]alu_oprn
   wire [3:0] alu_oprn;
@@ -176,9 +176,17 @@
 
   //[26]ma_sel_1
   wire ma_sel_1;
-    
+    wire [`DATA_INDEX_LIMIT:0] ma_sel_1_out;
+    MUX32_2x1 ma_sel_1_mux_inst(.Y(ma_sel_1_out), .I0(alu_out), .I1(sp_Q), .S(ma_sel_1));
+
   //[27]ma_sel_2
+  wire ma_sel_2;
+    MUX32_2x1 ma_sel_1_mux_inst(.Y(ADDR), .I0(ma_sel_1_out), .I1(pc_Q), .S(ma_sel_2));
+
   //[28]md_sel_1
+  wire md_sel_1;
+    // wire [`DATA_INDEX_LIMIT:0] md_sel_1_out;
+    MUX32_2x1 md_sel_1_mux_inst(.Y(DATA_OUT), .I0(rf_r2_out), .I1(rf_r1_out), .S(md_sel_1));
 
 
 
