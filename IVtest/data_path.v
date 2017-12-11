@@ -2,6 +2,7 @@
 `include "logic.v"
 `include "mux.v"
 `include "register_file.v"
+`include "rc_add_sub_32.v"
 `ifndef _DATH_PATH_V_
 `define _DATH_PATH_V_
 // Name: data_path.v
@@ -35,8 +36,17 @@
   input CLK, RST;
   input [`DATA_INDEX_LIMIT:0] DATA_IN;
 
-  // TBD
+  wire [`DATA_INDEX_LIMIT:0] pc_Q;
+  wire [`DATA_INDEX_LIMIT:0] pc_D;
+  wire pc_load;
+  REG32 pc_inst(.Q(pc_Q), .D(pc_D), .LOAD(pc_load), .CLK(CLK), .RESET(RST));  //Flag: RST or nRST?
 
+  wire [`DATA_INDEX_LIMIT:0] pc_plus_one;
+  RC_ADD_SUB_32 pc_increment_inst(.Y(pc_plus_one), .CO(), .A(pc_Q), .B(32'h00000001), .SnA(1'b0));
+
+  wire [`DATA_INDEX_LIMIT:0] pc_sel_1_out
+  wire pc_sel_1;
+  MUX32_2x1 pc_sel_1_mux_inst(Y, I0, I1, S);
 endmodule
 //------------------------------------------------------------------------------------------
 `endif
