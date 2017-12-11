@@ -1,5 +1,6 @@
 `include "logic_32_bit.v"
 `include "rc_add_sub_32.v"
+`include "mux.v"
 `ifndef _LOGIC_V_
 `define _LOGIC_V_
 // Name: logic.v
@@ -71,7 +72,12 @@ module REG1(Q, Qbar, D, L, C, nP, nR);
   input nP, nR;
   output Q,Qbar;
 
-  // TBD
+  wire w_muxLD;   //2x1 mux result
+  wire w_DQ;      //feed back from DFF into 2x1 mux
+
+  MUX1_2x1 MUX1_2x1_INST(.Y(w_muxLD), .I0(w_DQ), .I1(D), .S(L));
+  D_FF D_FF_INST(.Q(w_DQ), .Qbar(Qbar), .D(w_muxLD), .C(C), .nP(nP), .nR(nR));
+  assign Q = w_DQ;
 
 endmodule
 
