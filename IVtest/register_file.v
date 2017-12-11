@@ -71,7 +71,7 @@ module REGISTER_FILE_32x32(DATA_R1, DATA_R2, ADDR_R1, ADDR_R2,
                        .D(DATA_W),
                        .LOAD(w_load[i]),
                        .CLK(CLK),
-                       .RESET(nRST));
+                       .RESET(RST));     //nRST ? RST ?
     end
   endgenerate
 
