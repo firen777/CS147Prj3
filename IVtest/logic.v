@@ -59,7 +59,13 @@ module REG32(Q, D, LOAD, CLK, RESET);
   input [31:0] D;
   input RESET;
 
-  // TBD
+  genvar i;
+  generate
+    for(i=0; i<32; i=i+1)
+    begin: reg32_gen
+      REG1 REG1_INST(.Q(Q[i]), .Qbar(), .D(D[i]), .L(LOAD), .C(CLK), .nP(1'b1), .nR(RESET));
+    end
+  endgenerate
 
 endmodule
 
