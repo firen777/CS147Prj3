@@ -88,47 +88,52 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
     //Execution phase
     else if (proc_state === `PROC_EXE)
     begin
+      ctrl_hi = 3'b0; ctrl_oprn = 4'b0 ctrl_low  = 22'h0; //reset
       case (opcode)
         // R-Type //ALU: 1,2,3, 6,7,8,9, 5,4, x
+        //	- Integer add (0x1), sub(0x2), mul(0x3)
+        //	- Integer shift_rigth (0x4), shift_left (0x5)
+        //	- Bitwise and (0x6), or (0x7), nor (0x8)
+        //  - set less than (0x9)
         6'h00 : begin //read: r1, r2
           case(funct)
-            6'h20: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h01; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
+            6'h20: begin ctrl_oprn = 4'b0001; ctrl_low  = 22'h200000;//+ op2_sel_4=1
             end
-            6'h22: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h02; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
+            6'h22: begin ctrl_oprn = 4'b0010; ctrl_low  = 22'h200000;//- ...
             end
-            6'h2c: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h03; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
+            6'h2c: begin ctrl_oprn = 4'b0011; ctrl_low  = 22'h200000;//*
             end
-            6'h24: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h06; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
+            6'h24: begin ctrl_oprn = 4'b0110; ctrl_low  = 22'h200000;//&
             end
-            6'h25: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h07; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
+            6'h25: begin ctrl_oprn = 4'b0111; ctrl_low  = 22'h200000;//|
             end
-            6'h27: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h08; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
+            6'h27: begin ctrl_oprn = 4'b1000; ctrl_low  = 22'h200000;//~|
             end
-            6'h2a: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h09; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
+            6'h2a: begin ctrl_oprn = 4'b1001; ctrl_low  = 22'h200000;//slt
             end
-            6'h01: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h05; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = shamt;
+            6'h01: begin ctrl_oprn = 4'b0101; ctrl_low  = 22'h200000;//<<
             end
-            6'h02: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h04; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = shamt;
+            6'h02: begin ctrl_oprn = 4'b0100; ctrl_low  = 22'h200000;//>>
             end
-            6'h08: begin PC_REG = RF_DATA_R1;
+            6'h08: begin //nothing
             end
           endcase
         end
 
         // I-Type //ALU: 1,3, 6,7,x,9, 2,2,1,1
-        6'h08 : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h01; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = SIGN_EXT;
+        6'h08 : begin ctrl_oprn = 4'b0001; ctrl_low = 22'h080000; //+ op2_sel_2 = 1, SIGN_EXT
         end
-        6'h1d : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h03; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = SIGN_EXT;
+        6'h1d : begin ctrl_oprn = 4'b0011; ctrl_low = 22'h080000; //* ...
         end
-        6'h0c : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h06; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = ZERO_EXT;
+        6'h0c : begin ctrl_oprn = 4'b0110; ctrl_low = 22'h000000; //& op2_sel_2 = 0, ZERO_EXT
         end
-        6'h0d : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h07; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = ZERO_EXT;
+        6'h0d : begin ctrl_oprn = 4'b0111; ctrl_low = 22'h000000; //| op2_sel_2 = 0, ZERO_EXT
         end
         // 6'h0f : begin
         // end
-        6'h0a : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h09; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = SIGN_EXT;
+        6'h0a : begin ctrl_oprn = 4'b1001; ctrl_low = 22'h080000; //slti, SIGN_EXT
         end
-        6'h04, 6'h05 : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h02; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
+        6'h04, 6'h05 : begin ; //comparision. != and ==. -, low immediate
         end
         // 6'h05 ...
         6'h23, 6'h2b : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h01; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = SIGN_EXT;
