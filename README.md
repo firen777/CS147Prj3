@@ -50,3 +50,5 @@ The primary objective of this project to write a mixed model of a bare minimum c
 ==========================================================================================
 # Icarus Verilog:
 Installation and brief tutorial: https://www.swarthmore.edu/NatSci/mzucker1/e15_f2014/iverilog.html
+
+Backup link: https://archive.fo/YPSor
