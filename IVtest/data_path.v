@@ -195,7 +195,7 @@ module DATA_PATH(DATA_OUT, ADDR, ZERO, INSTRUCTION, DATA_IN, CTRL, CLK, RST);
   //==========second construction: link temparary input wire together.==============//
   assign pc_D = pc_sel_3_out;
     assign pc_sel_1_i0 = rf_r1_out;
-    RC_ADD_SUB_32 pc_plus_one_ADD_imms_inst(.Y(pc_sel_2_i1), .CO(), .A(pc_plus_one), .B({16{imm[15]}, imm}), .SnA(1'b0));
+    RC_ADD_SUB_32 pc_plus_one_ADD_imms_inst(.Y(pc_sel_2_i1), .CO(), .A(pc_plus_one), .B({{16{imm[15]}},imm}), .SnA(1'b0));
     assign pc_sel_3_i0 = {6'b0, addrs};
     assign ir_D = DATA_IN;
     assign rf_wr_addr = wa_sel_3_out;
@@ -205,8 +205,9 @@ module DATA_PATH(DATA_OUT, ADDR, ZERO, INSTRUCTION, DATA_IN, CTRL, CLK, RST);
     assign sp_D = alu_out;
     assign op2_sel_1_i1 = {27'b0, shamt};
     assign op2_sel_2_i0 = {16'b0, imm};
-    assign op2_sel_2_i1 = {16{imm[15]}, imm};
+    assign op2_sel_2_i1 = {{16{imm[15]}}, imm};
   //==========third construction: link CTRL to temparary control wire.==============//
+  //according to homework 2
   assign pc_load = CTRL[0];
     assign pc_sel_1 = CTRL[1];
     assign pc_sel_2 = CTRL[2];
