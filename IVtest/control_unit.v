@@ -61,14 +61,14 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
     //Addr<=PC; R<=1; W<=0; RegRW<=00||11
     if (proc_state === `PROC_FETCH)
     begin
-      CTRL_reg = 32'h08000020;
+      CTRL_reg = 32'h08000030; //mem_r = 1, ir_load = 1, ma_sel_2 = 1 (PC)
       MEM_ADDR_reg = PC_REG;
       MEM_READ_reg = 1'b1; MEM_WRITE_reg = 1'b0;
     end
     //Decoding INST_REG
     else if (proc_state === `PROC_DECODE)
     begin
-      CTRL_reg = 32'h00000110; //? 32'h00000010
+      CTRL_reg = 32'h00000110; //ir_load=1, reg_r=1 ||? 32'h00000010
       //Parse Instruction
       //R-Type
       {opcode, rs, rt, rd, shamt, funct} = INSTRUCTION;
@@ -133,10 +133,10 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
         // end
         6'h0a : begin ctrl_oprn = 4'b1001; ctrl_low = 22'h080000; //slti, SIGN_EXT
         end
-        6'h04, 6'h05 : begin ; //comparision. != and ==. -, low immediate
+        6'h04, 6'h05 : begin ctrl_oprn = 4'b0010; ctrl_low = 22'h080000; //comparision. != and ==. -, SIGN_EXT
         end
         // 6'h05 ...
-        6'h23, 6'h2b : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h01; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = SIGN_EXT;
+        6'h23, 6'h2b : begin ctrl_oprn = 4'b0001; ctrl_low = 22'h080000; //lw, sw. +, SIGN_EXT.
         end
         // 6'h2b ...
 
@@ -145,7 +145,7 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
         // end
         // 6'h03 : begin
         // end
-        6'h1b : begin RF_ADDR_R1_reg = 0;
+        6'h1b : begin RF_ADDR_R1_reg = 0; //r1_sel_1, select r_addr1 = 0
         end
         // 6'h1c : begin
         // end
