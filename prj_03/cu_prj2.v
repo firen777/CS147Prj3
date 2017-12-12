@@ -1,81 +1,136 @@
-`include "data_path.v"
-`ifndef _CONTROL_UNIT_V_
-`define _CONTROL_UNIT_V_
 // Name: control_unit.v
 // Module: CONTROL_UNIT
-// Output: CTRL  : Control signal for data path
-//         READ  : Memory read signal
-//         WRITE : Memory Write signal
+// Output: RF_DATA_W  : Data to be written at register file address RF_ADDR_W
+//         RF_ADDR_W  : Register file address of the memory location to be written
+//         RF_ADDR_R1 : Register file address of the memory location to be read for RF_DATA_R1
+//         RF_ADDR_R2 : Registere file address of the memory location to be read for RF_DATA_R2
+//         RF_READ    : Register file Read signal
+//         RF_WRITE   : Register file Write signal
+//         ALU_OP1    : ALU operand 1
+//         ALU_OP2    : ALU operand 2
+//         ALU_OPRN   : ALU operation code
+//         MEM_ADDR   : Memory address to be read in
+//         MEM_READ   : Memory read signal
+//         MEM_WRITE  : Memory write signal
 //
-// Input:  ZERO : Zero status from ALU
-//         CLK  : Clock signal
-//         RST  : Reset Signal
+// Input:  RF_DATA_R1 : Data at ADDR_R1 address
+//         RF_DATA_R2 : Data at ADDR_R1 address
+//         ALU_RESULT    : ALU output data
+//         CLK        : Clock signal
+//         RST        : Reset signal
+//
+// INOUT: MEM_DATA    : Data to be read in from or write to the memory
 //
 // Notes: - Control unit synchronize operations of a processor
-//          Assign each bit of control signal to control one part of data path
 //
 // Revision History:
 //
 // Version	Date		Who		email			note
 //------------------------------------------------------------------------------------------
 //  1.0     Sep 10, 2014	Kaushik Patra	kpatra@sjsu.edu		Initial creation
+//  1.1     Oct 19, 2014        Kaushik Patra   kpatra@sjsu.edu         Added ZERO status output
 //------------------------------------------------------------------------------------------
 `include "prj_definition.v"
-module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
-  // Output signals
-  output [`CTRL_WIDTH_INDEX_LIMIT:0]  CTRL;
-  output READ, WRITE;
+module CONTROL_UNIT(MEM_DATA, RF_DATA_W, RF_ADDR_W, RF_ADDR_R1, RF_ADDR_R2, RF_READ, RF_WRITE,
+                    ALU_OP1, ALU_OP2, ALU_OPRN, MEM_ADDR, MEM_READ, MEM_WRITE,
+                    RF_DATA_R1, RF_DATA_R2, ALU_RESULT, ZERO, CLK, RST);
 
-  // input signals
+  // Output signals
+  // Outputs for register file
+  output [`DATA_INDEX_LIMIT:0] RF_DATA_W;
+  output [`REG_ADDR_INDEX_LIMIT:0] RF_ADDR_W, RF_ADDR_R1, RF_ADDR_R2; //[`ADDRESS_INDEX_LIMIT:0], wrong bit-length?
+  output RF_READ, RF_WRITE;
+  // Outputs for ALU
+  output [`DATA_INDEX_LIMIT:0]  ALU_OP1, ALU_OP2;
+  output  [`ALU_OPRN_INDEX_LIMIT:0] ALU_OPRN;
+  // Outputs for memory
+  output [`ADDRESS_INDEX_LIMIT:0]  MEM_ADDR;
+  output MEM_READ, MEM_WRITE;
+
+  // Input signals
+  input [`DATA_INDEX_LIMIT:0] RF_DATA_R1, RF_DATA_R2, ALU_RESULT;
   input ZERO, CLK, RST;
-  input [`DATA_INDEX_LIMIT:0] INSTRUCTION;
+
+  // Inout signal
+  inout [`DATA_INDEX_LIMIT:0] MEM_DATA;
 
   // State nets
   wire [2:0] proc_state;
 
   PROC_SM state_machine(.STATE(proc_state),.CLK(CLK),.RST(RST)); //instantiate State_Machine
 
-  reg MEM_READ_reg; assign READ = MEM_READ_reg;
-  reg MEM_WRITE_reg; assign WRITE = MEM_WRITE_reg;
-  reg [`CTRL_WIDTH_INDEX_LIMIT:0]  CTRL_reg; assign CTRL = CTRL_reg;
-
-  reg [5:0] opcode;  //<<used
+  //========Registers=============
+  //Output Registers
+  //Outputs for register file
+  reg [`DATA_INDEX_LIMIT:0] RF_DATA_W_reg;
+  reg [`REG_ADDR_INDEX_LIMIT:0] RF_ADDR_W_reg, RF_ADDR_R1_reg, RF_ADDR_R2_reg;
+  reg RF_READ_reg, RF_WRITE_reg;
+  //Outputs for ALU
+  reg [`DATA_INDEX_LIMIT:0]  ALU_OP1_reg, ALU_OP2_reg;
+  reg  [`ALU_OPRN_INDEX_LIMIT:0] ALU_OPRN_reg;
+  //Outputs for memory
+  reg [`ADDRESS_INDEX_LIMIT:0]  MEM_ADDR_reg;
+  reg MEM_READ_reg, MEM_WRITE_reg;
+  //Register for writing out data. Assign to Inout MEM_DATA when WRITE
+  reg [`DATA_INDEX_LIMIT:0] MEM_DATA_reg;
+  //========Outputs assignments======
+  //Outputs for register file
+  assign RF_DATA_W = RF_DATA_W_reg;
+  assign RF_ADDR_W = RF_ADDR_W_reg; assign RF_ADDR_R1 = RF_ADDR_R1_reg; assign RF_ADDR_R2 = RF_ADDR_R2_reg;
+  assign RF_READ = RF_READ_reg; assign RF_WRITE = RF_WRITE_reg;
+  //Outputs for ALU
+  assign ALU_OP1 = ALU_OP1_reg; assign ALU_OP2 = ALU_OP2_reg;
+  assign ALU_OPRN = ALU_OPRN_reg;
+  //Outputs for memory
+  assign MEM_ADDR = MEM_ADDR_reg;
+  assign MEM_READ = MEM_READ_reg; assign MEM_WRITE = MEM_WRITE_reg;
+  //Register for writing out data. Assign to Inout MEM_DATA when WRITE
+  assign MEM_DATA = ((MEM_READ===1'b0)&&(MEM_WRITE===1'b1))?MEM_DATA_reg:{`DATA_WIDTH{1'bz} };
+  //==================================
+  //Internal Register
+  reg [`ADDRESS_INDEX_LIMIT:0] PC_REG;
+  reg [`DATA_INDEX_LIMIT:0] INST_REG;
+  reg [`ADDRESS_INDEX_LIMIT:0] SP_REF;
+  reg [5:0] opcode;
   reg [4:0] rs;
   reg [4:0] rt;
   reg [4:0] rd;
   reg [4:0] shamt;
-  reg [5:0] funct;  //<<used
+  reg [5:0] funct;
   reg [15:0] immediate;
   reg [25:0] address;
   reg [`DATA_INDEX_LIMIT:0] SIGN_EXT;
   reg [`DATA_INDEX_LIMIT:0] ZERO_EXT;
   reg [`DATA_INDEX_LIMIT:0] LUI;
   reg [`DATA_INDEX_LIMIT:0] JMP_ADDR;
-  //segment ctrl signal into 3 parts for easier implementation
-  reg [21:0] ctrl_low;
-  reg [3:0] ctrl_oprn;
-  reg [2:0] ctrl_hi;
+
+  //Initialize SP and PC
+  initial
+  begin
+   PC_REG = 'h0001000; // 00 0000 0000 0001 0000 0000 0000
+   SP_REF = 'h3ffffff; // 11 1111 1111 1111 1111 1111 1111
+  end
 
   always @ (proc_state)
   begin
     //Addr<=PC; R<=1; W<=0; RegRW<=00||11
     if (proc_state === `PROC_FETCH)
     begin
-      CTRL_reg = 32'h08000030; //mem_r = 1, ir_load = 1, ma_sel_2 = 1 (PC)
       MEM_ADDR_reg = PC_REG;
       MEM_READ_reg = 1'b1; MEM_WRITE_reg = 1'b0;
+      RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b0;
     end
     //Decoding INST_REG
     else if (proc_state === `PROC_DECODE)
     begin
-      CTRL_reg = 32'h00000110; //ir_load=1, reg_r=1 ||? 32'h00000010
+      INST_REG = MEM_DATA;
       //Parse Instruction
       //R-Type
-      {opcode, rs, rt, rd, shamt, funct} = INSTRUCTION;
+      {opcode, rs, rt, rd, shamt, funct} = INST_REG;
       //I-Type
-      {opcode, rs, rt, immediate} = INSTRUCTION;
+      {opcode, rs, rt, immediate} = INST_REG;
       //J-Type
-      {opcode, address} = INSTRUCTION;
+      {opcode, address} = INST_REG;
       //Sign extension
       SIGN_EXT = {{16{immediate[15]}},immediate};
       //Zero extension
@@ -84,59 +139,59 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
       LUI = {immediate, 16'h0000};
       //Jump address: {6x0, 26-bit}
       JMP_ADDR = {6'b000000, address};
+      //set RF read address
+      RF_ADDR_R1_reg = rs;
+      RF_ADDR_R2_reg = rt;
+      //set register operations to read
+      RF_READ_reg = 1'b1; RF_WRITE_reg = 1'b0;
     end
     //Execution phase
     else if (proc_state === `PROC_EXE)
     begin
-      ctrl_hi = 3'b0; ctrl_oprn = 4'b0 ctrl_low  = 22'h0; //reset
       case (opcode)
         // R-Type //ALU: 1,2,3, 6,7,8,9, 5,4, x
-        //	- Integer add (0x1), sub(0x2), mul(0x3)
-        //	- Integer shift_rigth (0x4), shift_left (0x5)
-        //	- Bitwise and (0x6), or (0x7), nor (0x8)
-        //  - set less than (0x9)
-        6'h00 : begin //read: r1, r2
+        6'h00 : begin
           case(funct)
-            6'h20: begin ctrl_oprn = 4'b0001; ctrl_low  = 22'h200000;//+ op2_sel_4=1
+            6'h20: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h01; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
             end
-            6'h22: begin ctrl_oprn = 4'b0010; ctrl_low  = 22'h200000;//- ...
+            6'h22: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h02; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
             end
-            6'h2c: begin ctrl_oprn = 4'b0011; ctrl_low  = 22'h200000;//*
+            6'h2c: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h03; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
             end
-            6'h24: begin ctrl_oprn = 4'b0110; ctrl_low  = 22'h200000;//&
+            6'h24: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h06; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
             end
-            6'h25: begin ctrl_oprn = 4'b0111; ctrl_low  = 22'h200000;//|
+            6'h25: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h07; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
             end
-            6'h27: begin ctrl_oprn = 4'b1000; ctrl_low  = 22'h200000;//~|
+            6'h27: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h08; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
             end
-            6'h2a: begin ctrl_oprn = 4'b1001; ctrl_low  = 22'h200000;//slt
+            6'h2a: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h09; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
             end
-            6'h01: begin ctrl_oprn = 4'b0101; ctrl_low  = 22'h200000;//<<
+            6'h01: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h05; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = shamt;
             end
-            6'h02: begin ctrl_oprn = 4'b0100; ctrl_low  = 22'h200000;//>>
+            6'h02: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h04; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = shamt;
             end
-            6'h08: begin //nothing
+            6'h08: begin PC_REG = RF_DATA_R1;
             end
           endcase
         end
 
         // I-Type //ALU: 1,3, 6,7,x,9, 2,2,1,1
-        6'h08 : begin ctrl_oprn = 4'b0001; ctrl_low = 22'h080000; //+ op2_sel_2 = 1, SIGN_EXT
+        6'h08 : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h01; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = SIGN_EXT;
         end
-        6'h1d : begin ctrl_oprn = 4'b0011; ctrl_low = 22'h080000; //* ...
+        6'h1d : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h03; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = SIGN_EXT;
         end
-        6'h0c : begin ctrl_oprn = 4'b0110; ctrl_low = 22'h000000; //& op2_sel_2 = 0, ZERO_EXT
+        6'h0c : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h06; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = ZERO_EXT;
         end
-        6'h0d : begin ctrl_oprn = 4'b0111; ctrl_low = 22'h000000; //| op2_sel_2 = 0, ZERO_EXT
+        6'h0d : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h07; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = ZERO_EXT;
         end
         // 6'h0f : begin
         // end
-        6'h0a : begin ctrl_oprn = 4'b1001; ctrl_low = 22'h080000; //slti, SIGN_EXT
+        6'h0a : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h09; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = SIGN_EXT;
         end
-        6'h04, 6'h05 : begin ctrl_oprn = 4'b0010; ctrl_low = 22'h080000; //comparision. != and ==. -, SIGN_EXT
+        6'h04, 6'h05 : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h02; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
         end
         // 6'h05 ...
-        6'h23, 6'h2b : begin ctrl_oprn = 4'b0001; ctrl_low = 22'h080000; //lw, sw. +, SIGN_EXT.
+        6'h23, 6'h2b : begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h01; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = SIGN_EXT;
         end
         // 6'h2b ...
 
@@ -145,13 +200,12 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
         // end
         // 6'h03 : begin
         // end
-        6'h1b : begin RF_ADDR_R1_reg = 0; //r1_sel_1, select r_addr1 = 0
+        6'h1b : begin RF_ADDR_R1_reg = 0;
         end
         // 6'h1c : begin
         // end
 
       endcase
-      CTRL_reg = {ctrl_hi, ctrl_oprn, ctrl_low};
     end
     //Memory Operation Phase
     else if (proc_state === `PROC_MEM)
@@ -181,78 +235,73 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
         default: begin MEM_READ_reg = 1'b0; MEM_WRITE_reg = 1'b0;
         end
       endcase
-      CTRL_reg = {ctrl_hi, ctrl_oprn, ctrl_low};
     end
     //Write Back Phase
     else if (proc_state === `PROC_WB)
     begin
-      PC_REG = PC_REG + 1;
-      MEM_READ_reg = 1'b0; MEM_WRITE_reg = 1'b0;
-      case (opcode)
-        // R-Type
-        6'h00 : begin
-          case (funct)
-            6'h08: PC_REG = RF_DATA_R1;
-            6'h02, 6'h01, 6'h2a, 6'h27, 6'h25, 6'h24, 6'h2c, 6'h22, 6'h20:
-            begin
-              RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-              RF_ADDR_W_reg = rd; RF_DATA_W_reg = ALU_RESULT;
-            end
-          endcase
-        end
+    PC_REG = PC_REG + 1;
+    MEM_READ_reg = 1'b0; MEM_WRITE_reg = 1'b0;
+    case (opcode)
+      // R-Type
+      6'h00 : begin
+        case (funct)
+          6'h08: PC_REG = RF_DATA_R1;
+          6'h02, 6'h01, 6'h2a, 6'h27, 6'h25, 6'h24, 6'h2c, 6'h22, 6'h20:
+          begin
+            RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+            RF_ADDR_W_reg = rd; RF_DATA_W_reg = ALU_RESULT;
+          end
+        endcase
+      end
 
-        // I-Type
-        6'h08, 6'h1d, 6'h0c, 6'h0d, 6'h0a : begin
-          RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-          RF_ADDR_W_reg = rt; RF_DATA_W_reg = ALU_RESULT;
-        end
-        // 6'h1d ... 6'h0c ... 6'h0d ...
-        6'h0f : begin
-          RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-          RF_ADDR_W_reg = rt; RF_DATA_W_reg = LUI;
-        end
-        // 6'h0a ...
-        6'h04 : begin
-          if (ZERO === 1'b1)
-            PC_REG = PC_REG + SIGN_EXT;
-        end
-        6'h05 : begin
-          if (ZERO === 1'b0)
-            PC_REG = PC_REG + SIGN_EXT;
-        end
-        6'h23 : begin
-          RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-          RF_ADDR_W_reg = rt; RF_DATA_W_reg = MEM_DATA;
-        end
-        // 6'h2b : begin
-        // end
+      // I-Type
+      6'h08, 6'h1d, 6'h0c, 6'h0d, 6'h0a : begin
+        RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+        RF_ADDR_W_reg = rt; RF_DATA_W_reg = ALU_RESULT;
+      end
+      // 6'h1d ... 6'h0c ... 6'h0d ...
+      6'h0f : begin
+        RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+        RF_ADDR_W_reg = rt; RF_DATA_W_reg = LUI;
+      end
+      // 6'h0a ...
+      6'h04 : begin
+        if (ZERO === 1'b1)
+          PC_REG = PC_REG + SIGN_EXT;
+      end
+      6'h05 : begin
+        if (ZERO === 1'b0)
+          PC_REG = PC_REG + SIGN_EXT;
+      end
+      6'h23 : begin
+        RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+        RF_ADDR_W_reg = rt; RF_DATA_W_reg = MEM_DATA;
+      end
+      // 6'h2b : begin
+      // end
 
-        // J-Type
-        6'h02 : begin
-          PC_REG = JMP_ADDR;
-        end
-        6'h03 : begin
-          RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-          RF_ADDR_W_reg = 5'b11111; RF_DATA_W_reg = PC_REG;
-          PC_REG = JMP_ADDR;
-        end
-        // 6'h1b : begin
-        // end
-        6'h1c : begin
-          RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-          RF_ADDR_W_reg = 5'b00000; RF_DATA_W_reg = MEM_DATA;
-        end
-      endcase
-      CTRL_reg = {ctrl_hi, ctrl_oprn, ctrl_low};
+      // J-Type
+      6'h02 : begin
+        PC_REG = JMP_ADDR;
+      end
+      6'h03 : begin
+        RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+        RF_ADDR_W_reg = 5'b11111; RF_DATA_W_reg = PC_REG;
+        PC_REG = JMP_ADDR;
+      end
+      // 6'h1b : begin
+      // end
+      6'h1c : begin
+        RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+        RF_ADDR_W_reg = 5'b00000; RF_DATA_W_reg = MEM_DATA;
+      end
+    endcase
     end
   end
-  // TBD - take action on each +ve edge of clock
-
 endmodule
 
-
 //------------------------------------------------------------------------------------------
-// Module: PROC_SM
+// Module: CONTROL_UNIT
 // Output: STATE      : State of the processor
 //
 // Input:  CLK        : Clock signal
@@ -376,6 +425,3 @@ module PROC_SM(STATE,CLK,RST);
   endtask
 
 endmodule
-
-//------------------------------------------------------------------------------------------
-`endif

@@ -1,3 +1,6 @@
+`include "half_adder.v"
+`ifndef _FULL_ADDER_V_
+`define _FULL_ADDER_V_
 // Name: full_adder.v
 // Module: FULL_ADDER
 //
@@ -29,3 +32,6 @@ HALF_ADDER H2(S,C2,Y1,CI);
 or(CO,C2,C1);
 
 endmodule
+
+//------------------------------------------------------------------------------------------
+`endif
