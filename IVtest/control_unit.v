@@ -51,7 +51,7 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
   reg [`DATA_INDEX_LIMIT:0] ZERO_EXT;
   reg [`DATA_INDEX_LIMIT:0] LUI;
   reg [`DATA_INDEX_LIMIT:0] JMP_ADDR;
-
+  //segment ctrl signal into 3 parts for easier implementation
   reg [21:0] ctrl_low;
   reg [3:0] ctrl_oprn;
   reg [2:0] ctrl_hi;
