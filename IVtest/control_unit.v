@@ -39,26 +39,43 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
   reg MEM_WRITE_reg; assign WRITE = MEM_WRITE_reg;
   reg [`CTRL_WIDTH_INDEX_LIMIT:0]  CTRL_reg; assign CTRL = CTRL_reg;
 
+  reg [5:0] opcode;  //<<used
+  reg [4:0] rs;
+  reg [4:0] rt;
+  reg [4:0] rd;
+  reg [4:0] shamt;
+  reg [5:0] funct;  //<<used
+  reg [15:0] immediate;
+  reg [25:0] address;
+  reg [`DATA_INDEX_LIMIT:0] SIGN_EXT;
+  reg [`DATA_INDEX_LIMIT:0] ZERO_EXT;
+  reg [`DATA_INDEX_LIMIT:0] LUI;
+  reg [`DATA_INDEX_LIMIT:0] JMP_ADDR;
+
+  reg [21:0] ctrl_low;
+  reg [3:0] ctrl_oprn;
+  reg [2:0] ctrl_hi;
+
   always @ (proc_state)
   begin
     //Addr<=PC; R<=1; W<=0; RegRW<=00||11
     if (proc_state === `PROC_FETCH)
     begin
+      CTRL_reg = 32'h08000020;
       MEM_ADDR_reg = PC_REG;
       MEM_READ_reg = 1'b1; MEM_WRITE_reg = 1'b0;
-      RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b0;
     end
     //Decoding INST_REG
     else if (proc_state === `PROC_DECODE)
     begin
-      INST_REG = MEM_DATA;
+      CTRL_reg = 32'h00000110; //? 32'h00000010
       //Parse Instruction
       //R-Type
-      {opcode, rs, rt, rd, shamt, funct} = INST_REG;
+      {opcode, rs, rt, rd, shamt, funct} = INSTRUCTION;
       //I-Type
-      {opcode, rs, rt, immediate} = INST_REG;
+      {opcode, rs, rt, immediate} = INSTRUCTION;
       //J-Type
-      {opcode, address} = INST_REG;
+      {opcode, address} = INSTRUCTION;
       //Sign extension
       SIGN_EXT = {{16{immediate[15]}},immediate};
       //Zero extension
@@ -67,18 +84,13 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
       LUI = {immediate, 16'h0000};
       //Jump address: {6x0, 26-bit}
       JMP_ADDR = {6'b000000, address};
-      //set RF read address
-      RF_ADDR_R1_reg = rs;
-      RF_ADDR_R2_reg = rt;
-      //set register operations to read
-      RF_READ_reg = 1'b1; RF_WRITE_reg = 1'b0;
     end
     //Execution phase
     else if (proc_state === `PROC_EXE)
     begin
       case (opcode)
         // R-Type //ALU: 1,2,3, 6,7,8,9, 5,4, x
-        6'h00 : begin
+        6'h00 : begin //read: r1, r2
           case(funct)
             6'h20: begin ALU_OPRN_reg = `ALU_OPRN_WIDTH'h01; ALU_OP1_reg = RF_DATA_R1; ALU_OP2_reg = RF_DATA_R2;
             end
@@ -134,6 +146,7 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
         // end
 
       endcase
+      CTRL_reg = {ctrl_hi, ctrl_oprn, ctrl_low};
     end
     //Memory Operation Phase
     else if (proc_state === `PROC_MEM)
@@ -163,67 +176,69 @@ module CONTROL_UNIT(CTRL, READ, WRITE, ZERO, INSTRUCTION, CLK, RST);
         default: begin MEM_READ_reg = 1'b0; MEM_WRITE_reg = 1'b0;
         end
       endcase
+      CTRL_reg = {ctrl_hi, ctrl_oprn, ctrl_low};
     end
     //Write Back Phase
     else if (proc_state === `PROC_WB)
     begin
-    PC_REG = PC_REG + 1;
-    MEM_READ_reg = 1'b0; MEM_WRITE_reg = 1'b0;
-    case (opcode)
-      // R-Type
-      6'h00 : begin
-        case (funct)
-          6'h08: PC_REG = RF_DATA_R1;
-          6'h02, 6'h01, 6'h2a, 6'h27, 6'h25, 6'h24, 6'h2c, 6'h22, 6'h20:
-          begin
-            RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-            RF_ADDR_W_reg = rd; RF_DATA_W_reg = ALU_RESULT;
-          end
-        endcase
-      end
+      PC_REG = PC_REG + 1;
+      MEM_READ_reg = 1'b0; MEM_WRITE_reg = 1'b0;
+      case (opcode)
+        // R-Type
+        6'h00 : begin
+          case (funct)
+            6'h08: PC_REG = RF_DATA_R1;
+            6'h02, 6'h01, 6'h2a, 6'h27, 6'h25, 6'h24, 6'h2c, 6'h22, 6'h20:
+            begin
+              RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+              RF_ADDR_W_reg = rd; RF_DATA_W_reg = ALU_RESULT;
+            end
+          endcase
+        end
 
-      // I-Type
-      6'h08, 6'h1d, 6'h0c, 6'h0d, 6'h0a : begin
-        RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-        RF_ADDR_W_reg = rt; RF_DATA_W_reg = ALU_RESULT;
-      end
-      // 6'h1d ... 6'h0c ... 6'h0d ...
-      6'h0f : begin
-        RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-        RF_ADDR_W_reg = rt; RF_DATA_W_reg = LUI;
-      end
-      // 6'h0a ...
-      6'h04 : begin
-        if (ZERO === 1'b1)
-          PC_REG = PC_REG + SIGN_EXT;
-      end
-      6'h05 : begin
-        if (ZERO === 1'b0)
-          PC_REG = PC_REG + SIGN_EXT;
-      end
-      6'h23 : begin
-        RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-        RF_ADDR_W_reg = rt; RF_DATA_W_reg = MEM_DATA;
-      end
-      // 6'h2b : begin
-      // end
+        // I-Type
+        6'h08, 6'h1d, 6'h0c, 6'h0d, 6'h0a : begin
+          RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+          RF_ADDR_W_reg = rt; RF_DATA_W_reg = ALU_RESULT;
+        end
+        // 6'h1d ... 6'h0c ... 6'h0d ...
+        6'h0f : begin
+          RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+          RF_ADDR_W_reg = rt; RF_DATA_W_reg = LUI;
+        end
+        // 6'h0a ...
+        6'h04 : begin
+          if (ZERO === 1'b1)
+            PC_REG = PC_REG + SIGN_EXT;
+        end
+        6'h05 : begin
+          if (ZERO === 1'b0)
+            PC_REG = PC_REG + SIGN_EXT;
+        end
+        6'h23 : begin
+          RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+          RF_ADDR_W_reg = rt; RF_DATA_W_reg = MEM_DATA;
+        end
+        // 6'h2b : begin
+        // end
 
-      // J-Type
-      6'h02 : begin
-        PC_REG = JMP_ADDR;
-      end
-      6'h03 : begin
-        RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-        RF_ADDR_W_reg = 5'b11111; RF_DATA_W_reg = PC_REG;
-        PC_REG = JMP_ADDR;
-      end
-      // 6'h1b : begin
-      // end
-      6'h1c : begin
-        RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
-        RF_ADDR_W_reg = 5'b00000; RF_DATA_W_reg = MEM_DATA;
-      end
-    endcase
+        // J-Type
+        6'h02 : begin
+          PC_REG = JMP_ADDR;
+        end
+        6'h03 : begin
+          RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+          RF_ADDR_W_reg = 5'b11111; RF_DATA_W_reg = PC_REG;
+          PC_REG = JMP_ADDR;
+        end
+        // 6'h1b : begin
+        // end
+        6'h1c : begin
+          RF_READ_reg = 1'b0; RF_WRITE_reg = 1'b1;
+          RF_ADDR_W_reg = 5'b00000; RF_DATA_W_reg = MEM_DATA;
+        end
+      endcase
+      CTRL_reg = {ctrl_hi, ctrl_oprn, ctrl_low};
     end
   end
   // TBD - take action on each +ve edge of clock
