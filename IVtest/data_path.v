@@ -235,7 +235,9 @@ module DATA_PATH(DATA_OUT, ADDR, ZERO, INSTRUCTION, DATA_IN, CTRL, CLK, RST);
     assign ma_sel_2 = CTRL[27];
     assign md_sel_1 = CTRL[28];
 
-  //stub
+  //fourth step: Output INSTRUCTION:
+  assign INSTRUCTION = ir_Q;
+
 
 endmodule
 
